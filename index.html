@@ -1,0 +1,625 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ZyraHost — Hébergement HTML Gratuit</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne+Mono&family=Syne:wght@400;700;800&family=DM+Mono:wght@300;400&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #03060f;
+  --bg2: #060c1a;
+  --cyan: #00e5ff;
+  --cyan2: #00b8d9;
+  --cyan-glow: rgba(0,229,255,0.25);
+  --green: #00ff9d;
+  --surface: rgba(6,18,40,0.8);
+  --border: rgba(0,229,255,0.12);
+  --border-bright: rgba(0,229,255,0.4);
+  --text: #c8e8f0;
+  --muted: #4a6a7a;
+  --white: #e8f4ff;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{
+  font-family:'DM Mono',monospace;
+  background:var(--bg);
+  color:var(--text);
+  overflow-x:hidden;
+  cursor:default;
+}
+
+/* ── CANVAS BG ── */
+#bg-canvas{position:fixed;inset:0;z-index:0;pointer-events:none}
+
+/* ── GRID ── */
+.grid-bg{
+  position:fixed;inset:0;z-index:0;pointer-events:none;
+  background-image:
+    linear-gradient(rgba(0,229,255,0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0,229,255,0.04) 1px, transparent 1px);
+  background-size:48px 48px;
+}
+
+/* ── SCANLINES ── */
+.scanlines{
+  position:fixed;inset:0;z-index:1;pointer-events:none;
+  background:repeating-linear-gradient(to bottom,transparent 0px,transparent 3px,rgba(0,0,0,0.05) 3px,rgba(0,0,0,0.05) 4px);
+}
+
+/* ── NAV ── */
+nav{
+  position:fixed;top:0;left:0;right:0;z-index:100;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:18px 52px;
+  border-bottom:1px solid rgba(0,229,255,0.06);
+  background:rgba(3,6,15,0.85);
+  backdrop-filter:blur(16px);
+}
+.logo{
+  display:flex;align-items:center;gap:12px;
+  font-family:'Syne',sans-serif;font-weight:800;font-size:1.15rem;
+  letter-spacing:0.08em;color:var(--white);
+}
+.logo-icon{
+  width:32px;height:32px;
+  background:linear-gradient(135deg,var(--cyan),var(--cyan2));
+  clip-path:polygon(50% 0%,100% 25%,100% 75%,50% 100%,0% 75%,0% 25%);
+  display:flex;align-items:center;justify-content:center;
+  font-size:0.85rem;
+  box-shadow:0 0 20px var(--cyan-glow);
+  animation:logoPulse 3s ease-in-out infinite;
+}
+@keyframes logoPulse{0%,100%{box-shadow:0 0 20px var(--cyan-glow)}50%{box-shadow:0 0 40px rgba(0,229,255,0.5)}}
+.nav-links{display:flex;gap:36px;list-style:none}
+.nav-links a{
+  font-family:'Syne Mono',monospace;font-size:0.7rem;
+  letter-spacing:0.2em;color:var(--muted);
+  text-decoration:none;text-transform:uppercase;
+  transition:color 0.2s;
+}
+.nav-links a:hover{color:var(--cyan)}
+.nav-cta{
+  font-family:'Syne',sans-serif;font-size:0.72rem;font-weight:700;
+  letter-spacing:0.15em;text-transform:uppercase;
+  padding:10px 22px;
+  border:1px solid var(--border-bright);
+  color:var(--cyan);background:transparent;
+  cursor:pointer;text-decoration:none;
+  clip-path:polygon(0 0,calc(100% - 8px) 0,100% 8px,100% 100%,8px 100%,0 calc(100% - 8px));
+  transition:background 0.2s,box-shadow 0.2s;
+}
+.nav-cta:hover{background:rgba(0,229,255,0.08);box-shadow:0 0 20px var(--cyan-glow)}
+
+/* ── WRAPPER ── */
+.wrapper{position:relative;z-index:10}
+
+/* ── HERO ── */
+#hero{
+  min-height:100vh;
+  display:flex;flex-direction:column;justify-content:center;align-items:center;
+  text-align:center;padding:120px 48px 80px;
+  position:relative;
+}
+.hero-eyebrow{
+  font-family:'Syne Mono',monospace;font-size:0.68rem;
+  letter-spacing:0.4em;color:var(--cyan);text-transform:uppercase;
+  margin-bottom:24px;
+  opacity:0;animation:fadeUp 0.5s ease forwards 0.2s;
+}
+.hero-title{
+  font-family:'Syne',sans-serif;font-weight:800;
+  font-size:clamp(3.5rem,10vw,8rem);
+  line-height:0.95;letter-spacing:-0.02em;
+  color:var(--white);
+  text-shadow:0 0 80px rgba(0,229,255,0.15);
+  opacity:0;animation:fadeUp 0.6s ease forwards 0.4s;
+}
+.hero-title span{
+  color:var(--cyan);
+  text-shadow:0 0 40px var(--cyan-glow),0 0 80px rgba(0,229,255,0.2);
+}
+.hero-sub{
+  font-size:1.05rem;font-weight:300;line-height:1.7;
+  color:rgba(200,232,240,0.6);
+  max-width:520px;margin:28px auto 0;
+  opacity:0;animation:fadeUp 0.6s ease forwards 0.6s;
+}
+.hero-url-demo{
+  margin-top:40px;
+  display:inline-flex;align-items:center;gap:0;
+  background:var(--surface);
+  border:1px solid var(--border-bright);
+  padding:14px 24px;
+  font-family:'Syne Mono',monospace;font-size:1rem;
+  clip-path:polygon(0 0,calc(100% - 12px) 0,100% 12px,100% 100%,12px 100%,0 calc(100% - 12px));
+  opacity:0;animation:fadeUp 0.6s ease forwards 0.8s;
+  box-shadow:0 0 40px rgba(0,229,255,0.08);
+}
+.url-prefix{color:var(--muted)}
+.url-name{color:var(--cyan);text-shadow:0 0 16px var(--cyan-glow);animation:blink 1.5s steps(1) infinite}
+.url-domain{color:var(--white)}
+@keyframes blink{50%{opacity:0}}
+.hero-actions{
+  display:flex;gap:16px;margin-top:40px;justify-content:center;
+  flex-wrap:wrap;
+  opacity:0;animation:fadeUp 0.6s ease forwards 1s;
+}
+
+/* ── BUTTONS ── */
+.btn{
+  display:inline-flex;align-items:center;gap:10px;
+  padding:14px 30px;border:none;cursor:pointer;
+  font-family:'Syne',sans-serif;font-weight:700;
+  font-size:0.72rem;letter-spacing:0.18em;text-transform:uppercase;text-decoration:none;
+  clip-path:polygon(0 0,calc(100% - 10px) 0,100% 10px,100% 100%,10px 100%,0 calc(100% - 10px));
+  transition:transform 0.2s,box-shadow 0.2s;
+}
+.btn:hover{transform:translateY(-2px)}
+.btn-primary{
+  background:var(--cyan);color:var(--bg);
+  box-shadow:0 0 30px var(--cyan-glow);
+}
+.btn-primary:hover{box-shadow:0 0 50px rgba(0,229,255,0.5)}
+.btn-ghost{
+  background:transparent;color:var(--text);
+  border:1px solid var(--border-bright);
+}
+.btn-ghost:hover{border-color:var(--cyan);color:var(--cyan)}
+
+/* ── SECTION COMMONS ── */
+section{padding:100px 52px;position:relative}
+.section-eyebrow{
+  font-family:'Syne Mono',monospace;font-size:0.65rem;
+  letter-spacing:0.35em;color:var(--cyan);text-transform:uppercase;
+  margin-bottom:12px;display:flex;align-items:center;gap:10px;
+}
+.section-eyebrow::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,var(--border-bright),transparent);max-width:120px}
+.section-title{
+  font-family:'Syne',sans-serif;font-weight:800;
+  font-size:clamp(2rem,4vw,3rem);color:var(--white);
+  line-height:1.1;margin-bottom:56px;
+}
+
+/* ── HOW IT WORKS ── */
+#how{max-width:1100px;margin:0 auto}
+.steps{display:grid;grid-template-columns:repeat(3,1fr);gap:2px;position:relative}
+.steps::before{
+  content:'';position:absolute;top:40px;left:16.67%;right:16.67%;
+  height:1px;background:linear-gradient(90deg,transparent,var(--border-bright),var(--border-bright),transparent);
+  z-index:0;
+}
+.step{
+  padding:40px 32px;
+  background:var(--surface);border:1px solid var(--border);
+  position:relative;z-index:1;
+  transition:border-color 0.3s,background 0.3s;
+}
+.step:hover{border-color:var(--border-bright);background:rgba(0,229,255,0.04)}
+.step:first-child{clip-path:polygon(0 0,calc(100% - 16px) 0,100% 16px,100% 100%,0 100%)}
+.step:last-child{clip-path:polygon(0 0,100% 0,100% 100%,16px 100%,0 calc(100% - 16px))}
+.step-num{
+  width:48px;height:48px;
+  border:1px solid var(--border-bright);
+  display:flex;align-items:center;justify-content:center;
+  font-family:'Syne Mono',monospace;font-size:0.75rem;
+  color:var(--cyan);margin-bottom:24px;
+  background:rgba(0,229,255,0.05);
+  clip-path:polygon(0 0,calc(100% - 6px) 0,100% 6px,100% 100%,6px 100%,0 calc(100% - 6px));
+}
+.step-title{
+  font-family:'Syne',sans-serif;font-weight:700;font-size:1.05rem;
+  color:var(--white);margin-bottom:12px;
+}
+.step-desc{font-size:0.88rem;line-height:1.7;color:rgba(200,232,240,0.6)}
+
+/* ── FEATURES ── */
+#features{background:linear-gradient(180deg,transparent,rgba(0,60,80,0.08),transparent)}
+.features-inner{max-width:1100px;margin:0 auto}
+.features-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+.feat{
+  padding:32px 36px;
+  background:var(--surface);border:1px solid var(--border);
+  position:relative;overflow:hidden;
+  transition:border-color 0.3s,transform 0.3s;
+}
+.feat:hover{border-color:var(--border-bright);transform:translateY(-3px)}
+.feat::after{
+  content:'';position:absolute;
+  top:0;left:0;width:100%;height:1px;
+  background:linear-gradient(90deg,transparent,var(--cyan),transparent);
+  transform:translateX(-100%);transition:transform 0.6s;
+}
+.feat:hover::after{transform:translateX(100%)}
+.feat.big{grid-column:span 2}
+.feat-icon{font-size:1.8rem;margin-bottom:16px}
+.feat-title{font-family:'Syne',sans-serif;font-weight:700;font-size:1.1rem;color:var(--white);margin-bottom:10px}
+.feat-desc{font-size:0.88rem;line-height:1.7;color:rgba(200,232,240,0.6)}
+.feat-tag{
+  display:inline-block;margin-top:12px;
+  font-family:'Syne Mono',monospace;font-size:0.62rem;
+  letter-spacing:0.15em;padding:4px 12px;
+  background:rgba(0,255,157,0.08);border:1px solid rgba(0,255,157,0.25);
+  color:var(--green);
+}
+
+/* ── TERMINAL DEMO ── */
+#demo{max-width:860px;margin:0 auto;text-align:center}
+.terminal{
+  background:#020810;
+  border:1px solid var(--border-bright);
+  clip-path:polygon(0 0,calc(100% - 20px) 0,100% 20px,100% 100%,20px 100%,0 calc(100% - 20px));
+  overflow:hidden;
+  box-shadow:0 0 60px rgba(0,229,255,0.08);
+}
+.terminal-bar{
+  background:rgba(0,229,255,0.06);
+  padding:12px 20px;
+  display:flex;align-items:center;gap:8px;
+  border-bottom:1px solid var(--border);
+}
+.tbar-dot{width:10px;height:10px;border-radius:50%}
+.tbar-dot.r{background:#ff5f57}.tbar-dot.y{background:#ffbd2e}.tbar-dot.g{background:#28ca42}
+.tbar-title{
+  font-family:'Syne Mono',monospace;font-size:0.65rem;
+  color:var(--muted);margin-left:8px;letter-spacing:0.15em;
+}
+.terminal-body{padding:32px 36px;text-align:left}
+.t-line{
+  font-family:'Syne Mono',monospace;font-size:0.82rem;
+  line-height:2;display:block;
+}
+.t-prompt{color:var(--cyan)}.t-cmd{color:var(--white)}.t-out{color:rgba(200,232,240,0.5)}
+.t-success{color:var(--green)}.t-url{color:var(--cyan);text-decoration:underline}
+.t-cursor{
+  display:inline-block;width:8px;height:14px;
+  background:var(--cyan);
+  animation:blink 1s steps(1) infinite;vertical-align:middle;
+}
+
+/* ── SHOWCASE ── */
+#showcase{max-width:1100px;margin:0 auto}
+.sites-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.site-card{
+  background:var(--surface);border:1px solid var(--border);
+  padding:28px;
+  clip-path:polygon(0 0,calc(100% - 10px) 0,100% 10px,100% 100%,0 100%);
+  transition:border-color 0.3s,transform 0.3s;cursor:pointer;
+}
+.site-card:hover{border-color:var(--border-bright);transform:translateY(-4px)}
+.site-preview{
+  height:80px;background:linear-gradient(135deg,rgba(0,229,255,0.05),rgba(0,60,80,0.2));
+  border:1px solid rgba(0,229,255,0.08);margin-bottom:16px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:2rem;
+}
+.site-name{font-family:'Syne',sans-serif;font-weight:700;font-size:0.9rem;color:var(--white);margin-bottom:4px}
+.site-url{font-family:'Syne Mono',monospace;font-size:0.62rem;color:var(--cyan);opacity:0.7}
+
+/* ── CTA SECTION ── */
+#cta-section{
+  text-align:center;
+  background:radial-gradient(ellipse at center,rgba(0,80,100,0.15),transparent 70%);
+}
+.cta-box{
+  max-width:640px;margin:0 auto;
+  border:1px solid var(--border-bright);
+  padding:64px 48px;
+  background:var(--surface);
+  clip-path:polygon(0 0,calc(100% - 24px) 0,100% 24px,100% 100%,24px 100%,0 calc(100% - 24px));
+  box-shadow:0 0 80px rgba(0,229,255,0.06);
+}
+.cta-title{font-family:'Syne',sans-serif;font-weight:800;font-size:2.2rem;color:var(--white);margin-bottom:16px}
+.cta-sub{font-size:0.95rem;color:rgba(200,232,240,0.6);line-height:1.7;margin-bottom:40px}
+.cta-input-group{display:flex;gap:0;margin-bottom:20px}
+.cta-input-wrap{
+  flex:1;display:flex;align-items:center;
+  border:1px solid var(--border-bright);border-right:none;
+  background:rgba(0,0,0,0.3);padding:0 16px;
+  font-family:'Syne Mono',monospace;font-size:0.78rem;color:var(--muted);
+}
+.cta-input{
+  flex:1;background:transparent;border:none;outline:none;
+  font-family:'Syne Mono',monospace;font-size:0.88rem;color:var(--cyan);
+  padding:14px 0;
+}
+.cta-input::placeholder{color:var(--muted)}
+.cta-btn{
+  background:var(--cyan);color:var(--bg);border:none;cursor:pointer;
+  padding:14px 28px;
+  font-family:'Syne',sans-serif;font-weight:700;font-size:0.72rem;
+  letter-spacing:0.15em;text-transform:uppercase;
+  clip-path:polygon(0 0,100% 0,100% calc(100% - 10px),calc(100% - 10px) 100%,0 100%);
+  transition:box-shadow 0.2s;
+}
+.cta-btn:hover{box-shadow:0 0 30px var(--cyan-glow)}
+.cta-notice{font-family:'Syne Mono',monospace;font-size:0.62rem;color:var(--muted);letter-spacing:0.1em}
+.cta-notice span{color:var(--green)}
+
+/* ── FOOTER ── */
+footer{
+  padding:48px 52px;
+  border-top:1px solid rgba(0,229,255,0.06);
+  display:flex;justify-content:space-between;align-items:center;
+  position:relative;z-index:10;
+}
+.footer-copy{font-family:'Syne Mono',monospace;font-size:0.62rem;color:var(--muted);letter-spacing:0.12em}
+.footer-by{font-family:'Syne Mono',monospace;font-size:0.62rem;color:var(--muted)}
+.footer-by a{color:var(--cyan);text-decoration:none}
+.footer-by a:hover{text-shadow:0 0 10px var(--cyan-glow)}
+
+/* ── UTILS ── */
+@keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+::-webkit-scrollbar{width:3px}
+::-webkit-scrollbar-track{background:var(--bg)}
+::-webkit-scrollbar-thumb{background:var(--cyan2)}
+
+/* ── RESPONSIVE ── */
+@media(max-width:768px){
+  nav{padding:14px 20px}
+  .nav-links{display:none}
+  #hero{padding:100px 20px 60px}
+  section{padding:60px 20px}
+  .steps,.features-grid,.sites-grid{grid-template-columns:1fr}
+  .feat.big{grid-column:span 1}
+  .steps::before{display:none}
+  .cta-box{padding:40px 24px}
+  .cta-input-group{flex-direction:column}
+  .cta-input-wrap{border-right:1px solid var(--border-bright);border-bottom:none}
+  footer{flex-direction:column;gap:16px;text-align:center;padding:32px 20px}
+}
+</style>
+</head>
+<body>
+
+<canvas id="bg-canvas"></canvas>
+<div class="grid-bg"></div>
+<div class="scanlines"></div>
+
+<nav>
+  <div class="logo">
+    <div class="logo-icon">⬡</div>
+    ZYRAHOST
+  </div>
+  <ul class="nav-links">
+    <li><a href="#how">Comment ça marche</a></li>
+    <li><a href="#features">Fonctionnalités</a></li>
+    <li><a href="#showcase">Exemples</a></li>
+  </ul>
+  <a href="#cta-section" class="nav-cta">Déployer →</a>
+</nav>
+
+<div class="wrapper">
+
+<!-- HERO -->
+<section id="hero">
+  <div class="hero-eyebrow">◈ Hébergement HTML · Gratuit · Instantané</div>
+  <h1 class="hero-title">Votre site.<br>Votre <span>sous-domaine</span>.</h1>
+  <p class="hero-sub">Déposez votre fichier HTML. Choisissez un nom. Votre site est en ligne en quelques secondes — sans configuration, sans serveur, sans frais.</p>
+  <div class="hero-url-demo">
+    <span class="url-prefix">https://</span><span class="url-name">votresite</span><span class="url-domain">.zyrahost.fr</span>
+  </div>
+  <div class="hero-actions">
+    <a href="#cta-section" class="btn btn-primary">⬡ Déployer maintenant</a>
+    <a href="#how" class="btn btn-ghost">Voir comment ça marche</a>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section id="how">
+  <div id="how" style="max-width:1100px;margin:0 auto">
+    <div class="section-eyebrow">Processus</div>
+    <h2 class="section-title">3 étapes. C'est tout.</h2>
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">01</div>
+        <div class="step-title">Uploadez votre HTML</div>
+        <div class="step-desc">Un seul fichier <code>index.html</code>. Glissez-déposez ou sélectionnez depuis votre ordinateur. CSS et JS peuvent être inline.</div>
+      </div>
+      <div class="step">
+        <div class="step-num">02</div>
+        <div class="step-title">Choisissez votre nom</div>
+        <div class="step-desc">Sélectionnez le préfixe de votre sous-domaine. Disponibilité vérifiée en temps réel. Tout en minuscules, sans espaces.</div>
+      </div>
+      <div class="step">
+        <div class="step-num">03</div>
+        <div class="step-title">Votre site est live</div>
+        <div class="step-desc">En quelques secondes, votre page est accessible sur <strong style="color:var(--cyan)">nom.zyrahost.fr</strong>. Partagez le lien immédiatement.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FEATURES -->
+<section id="features">
+  <div class="features-inner">
+    <div class="section-eyebrow">Ce qu'on offre</div>
+    <h2 class="section-title">Simple. Rapide. Gratuit.</h2>
+    <div class="features-grid">
+      <div class="feat">
+        <div class="feat-icon">⚡</div>
+        <div class="feat-title">Déploiement instantané</div>
+        <div class="feat-desc">Upload → live en moins de 5 secondes. Pas de build, pas de pipeline, pas d'attente. Votre HTML tourne immédiatement.</div>
+        <span class="feat-tag">< 5 secondes</span>
+      </div>
+      <div class="feat">
+        <div class="feat-icon">🌐</div>
+        <div class="feat-title">Sous-domaine personnalisé</div>
+        <div class="feat-desc">Chaque site obtient sa propre URL <code style="color:var(--cyan)">*.zyrahost.fr</code>. Propre, mémorisable, partageable.</div>
+        <span class="feat-tag">*.zyrahost.fr</span>
+      </div>
+      <div class="feat">
+        <div class="feat-icon">🔒</div>
+        <div class="feat-title">HTTPS inclus</div>
+        <div class="feat-desc">Certificat SSL automatique sur chaque sous-domaine. Sécurisé par défaut, aucune configuration requise.</div>
+        <span class="feat-tag">SSL auto</span>
+      </div>
+      <div class="feat">
+        <div class="feat-icon">💸</div>
+        <div class="feat-title">100% Gratuit</div>
+        <div class="feat-desc">Pas de carte bancaire. Pas de plan premium caché. Hébergement HTML gratuit sans limitation de durée.</div>
+        <span class="feat-tag">0€ pour toujours</span>
+      </div>
+      <div class="feat big">
+        <div class="feat-icon">🎮</div>
+        <div class="feat-title">Fait pour les makers, devs et gamers</div>
+        <div class="feat-desc">ZyraHost est né dans l'écosystème de <strong style="color:var(--white)">sti_moi</strong> — pensé pour les projets créatifs, les portfolios, les mini-jeux HTML, les pages de plugin et tout ce que vous construisez. Hébergez vos créations là où elles méritent d'être : en ligne.</div>
+        <span class="feat-tag">par zyraplug's group</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TERMINAL DEMO -->
+<section id="demo">
+  <div class="section-eyebrow">En pratique</div>
+  <h2 class="section-title">Ce que vous voyez dans les logs</h2>
+  <div class="terminal">
+    <div class="terminal-bar">
+      <div class="tbar-dot r"></div>
+      <div class="tbar-dot y"></div>
+      <div class="tbar-dot g"></div>
+      <span class="tbar-title">zyrahost — deploy</span>
+    </div>
+    <div class="terminal-body">
+      <span class="t-line"><span class="t-prompt">zyra@host</span><span class="t-cmd"> ~ $ upload index.html --name crystalblast</span></span>
+      <span class="t-line t-out">  ◈ Analyzing file... 42KB</span>
+      <span class="t-line t-out">  ◈ Validating subdomain: crystalblast.zyrahost.fr</span>
+      <span class="t-line t-out">  ◈ Subdomain available ✓</span>
+      <span class="t-line t-out">  ◈ Provisioning SSL certificate...</span>
+      <span class="t-line t-out">  ◈ Deploying to edge...</span>
+      <span class="t-line"><span class="t-success">  ✓ Site live in 3.2s</span></span>
+      <span class="t-line"><span class="t-prompt">zyra@host</span><span class="t-cmd"> ~ $ </span><span class="t-cursor"></span></span>
+    </div>
+  </div>
+</section>
+
+<!-- SHOWCASE -->
+<section id="showcase">
+  <div class="section-eyebrow">Hébergés ici</div>
+  <h2 class="section-title">Sites déjà en ligne</h2>
+  <div class="sites-grid">
+    <div class="site-card" onclick="window.open('https://crysalblast.zyrahost.fr','_blank')">
+      <div class="site-preview">💎</div>
+      <div class="site-name">Crystal Blast</div>
+      <div class="site-url">crysalblast.zyrahost.fr</div>
+    </div>
+    <div class="site-card">
+      <div class="site-preview">⚙️</div>
+      <div class="site-name">Votre projet</div>
+      <div class="site-url">monsite.zyrahost.fr</div>
+    </div>
+    <div class="site-card">
+      <div class="site-preview">🚀</div>
+      <div class="site-name">Votre projet</div>
+      <div class="site-url">monprojet.zyrahost.fr</div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section id="cta-section">
+  <div class="cta-box">
+    <div class="cta-title">Prêt à déployer ?</div>
+    <p class="cta-sub">Choisissez votre sous-domaine et mettez votre site en ligne en quelques secondes. Gratuit, sans inscription requise.</p>
+    <div class="cta-input-group">
+      <div class="cta-input-wrap">
+        https://
+        <input class="cta-input" type="text" placeholder="monsite" maxlength="30" oninput="this.value=this.value.toLowerCase().replace(/[^a-z0-9-]/g,'')">
+        <span style="color:var(--muted)">.zyrahost.fr</span>
+      </div>
+      <button class="cta-btn" onclick="alert('Bientôt disponible ! 🚀')">Déployer →</button>
+    </div>
+    <div class="cta-notice"><span>✓ Gratuit</span> &nbsp;·&nbsp; <span>✓ HTTPS auto</span> &nbsp;·&nbsp; <span>✓ Instantané</span></div>
+  </div>
+</section>
+
+</div>
+
+<footer>
+  <div class="logo" style="font-size:0.9rem">
+    <div class="logo-icon" style="width:24px;height:24px;font-size:0.65rem">⬡</div>
+    ZYRAHOST
+  </div>
+  <div class="footer-copy">© 2026 ZyraHost — Tous droits réservés</div>
+  <div class="footer-by">Made by <a href="#">sti_moi</a> · zyraplug's group</div>
+</footer>
+
+<script>
+// ── PARTICLE NETWORK ──
+const canvas = document.getElementById('bg-canvas');
+const ctx = canvas.getContext('2d');
+let nodes = [];
+
+function resize(){
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+}
+
+function init(){
+  nodes = [];
+  const count = Math.floor(canvas.width * canvas.height / 14000);
+  for(let i=0;i<count;i++){
+    nodes.push({
+      x: Math.random()*canvas.width,
+      y: Math.random()*canvas.height,
+      vx: (Math.random()-0.5)*0.3,
+      vy: (Math.random()-0.5)*0.3,
+      size: Math.random()*1.5+0.5
+    });
+  }
+}
+
+function draw(){
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  // connections
+  for(let i=0;i<nodes.length;i++){
+    for(let j=i+1;j<nodes.length;j++){
+      const dx=nodes[i].x-nodes[j].x, dy=nodes[i].y-nodes[j].y;
+      const dist=Math.sqrt(dx*dx+dy*dy);
+      if(dist<120){
+        ctx.beginPath();
+        ctx.moveTo(nodes[i].x,nodes[i].y);
+        ctx.lineTo(nodes[j].x,nodes[j].y);
+        ctx.strokeStyle=`rgba(0,229,255,${0.06*(1-dist/120)})`;
+        ctx.lineWidth=0.5;
+        ctx.stroke();
+      }
+    }
+  }
+  // nodes
+  nodes.forEach(n=>{
+    ctx.beginPath();
+    ctx.arc(n.x,n.y,n.size,0,Math.PI*2);
+    ctx.fillStyle='rgba(0,229,255,0.25)';
+    ctx.fill();
+    n.x+=n.vx; n.y+=n.vy;
+    if(n.x<0||n.x>canvas.width) n.vx*=-1;
+    if(n.y<0||n.y>canvas.height) n.vy*=-1;
+  });
+  requestAnimationFrame(draw);
+}
+
+resize(); init(); draw();
+window.addEventListener('resize',()=>{resize();init()});
+
+// ── SCROLL REVEAL ──
+const observer = new IntersectionObserver(entries=>{
+  entries.forEach(e=>{
+    if(e.isIntersecting){
+      e.target.style.opacity='1';
+      e.target.style.transform='translateY(0)';
+    }
+  });
+},{threshold:0.1});
+
+document.querySelectorAll('.step,.feat,.site-card').forEach(el=>{
+  el.style.opacity='0';
+  el.style.transform='translateY(20px)';
+  el.style.transition='opacity 0.5s ease, transform 0.5s ease';
+  observer.observe(el);
+});
+</script>
+</body>
+</html>
