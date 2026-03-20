@@ -334,6 +334,38 @@ section{padding:100px 52px;position:relative}
   transition:box-shadow 0.2s;
 }
 .cta-btn:hover{box-shadow:0 0 30px var(--cyan-glow)}
+.cta-steps{
+  display:flex;align-items:center;gap:12px;
+  margin:28px 0;flex-wrap:wrap;justify-content:center;
+}
+.cta-step{
+  display:flex;align-items:center;gap:10px;
+  background:rgba(0,229,255,0.04);
+  border:1px solid var(--border);
+  padding:12px 16px;flex:1;min-width:140px;
+  clip-path:polygon(0 0,calc(100% - 8px) 0,100% 8px,100% 100%,8px 100%,0 calc(100% - 8px));
+}
+.cta-step-num{
+  width:24px;height:24px;min-width:24px;
+  background:var(--cyan);color:var(--bg);
+  border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  font-family:'Syne',sans-serif;font-weight:800;font-size:0.72rem;
+}
+.cta-step-text{font-family:'Syne Mono',monospace;font-size:0.65rem;line-height:1.4;color:rgba(200,232,240,0.7)}
+.cta-step-arrow{color:var(--border-bright);font-size:1.2rem;flex-shrink:0}
+.discord-btn-wrap{margin:8px 0 24px;display:flex;justify-content:center}
+.btn-discord{
+  display:inline-flex;align-items:center;gap:12px;
+  padding:16px 32px;
+  background:#5865F2;color:#fff;
+  font-family:'Syne',sans-serif;font-weight:700;
+  font-size:0.8rem;letter-spacing:0.12em;text-transform:uppercase;text-decoration:none;
+  clip-path:polygon(0 0,calc(100% - 12px) 0,100% 12px,100% 100%,12px 100%,0 calc(100% - 12px));
+  box-shadow:0 0 30px rgba(88,101,242,0.4);
+  transition:transform 0.2s,box-shadow 0.2s;
+}
+.btn-discord:hover{transform:translateY(-2px);box-shadow:0 0 50px rgba(88,101,242,0.6)}
 .cta-notice{font-family:'Syne Mono',monospace;font-size:0.62rem;color:var(--muted);letter-spacing:0.1em}
 .cta-notice span{color:var(--green)}
 
@@ -521,17 +553,44 @@ footer{
 <!-- CTA -->
 <section id="cta-section">
   <div class="cta-box">
-    <div class="cta-title">Prêt à déployer ?</div>
-    <p class="cta-sub">Choisissez votre sous-domaine et mettez votre site en ligne en quelques secondes. Gratuit, sans inscription requise.</p>
+    <div class="cta-title">Déployer votre site</div>
+    <p class="cta-sub">Entrez votre sous-domaine souhaité, puis rejoignez le Discord et ouvrez un ticket — on s'occupe du reste en moins de 24h.</p>
+
     <div class="cta-input-group">
       <div class="cta-input-wrap">
         https://
-        <input class="cta-input" type="text" placeholder="monsite" maxlength="30" oninput="this.value=this.value.toLowerCase().replace(/[^a-z0-9-]/g,'')">
+        <input id="subdomain-input" class="cta-input" type="text" placeholder="monsite" maxlength="30"
+          oninput="this.value=this.value.toLowerCase().replace(/[^a-z0-9-]/g,''); updateBtn()">
         <span style="color:var(--muted)">.zyrahost.fr</span>
       </div>
-      <button class="cta-btn" onclick="alert('Bientôt disponible ! 🚀')">Déployer →</button>
+      <button class="cta-btn" id="deploy-btn" onclick="openDiscord()">Déployer →</button>
     </div>
-    <div class="cta-notice"><span>✓ Gratuit</span> &nbsp;·&nbsp; <span>✓ HTTPS auto</span> &nbsp;·&nbsp; <span>✓ Instantané</span></div>
+
+    <div class="cta-steps">
+      <div class="cta-step">
+        <div class="cta-step-num">1</div>
+        <div class="cta-step-text">Entrez le nom de sous-domaine voulu ci-dessus</div>
+      </div>
+      <div class="cta-step-arrow">→</div>
+      <div class="cta-step">
+        <div class="cta-step-num">2</div>
+        <div class="cta-step-text">Rejoignez le Discord ZyraHost</div>
+      </div>
+      <div class="cta-step-arrow">→</div>
+      <div class="cta-step">
+        <div class="cta-step-num">3</div>
+        <div class="cta-step-text">Ouvrez un ticket avec votre nom + votre fichier HTML</div>
+      </div>
+    </div>
+
+    <div class="discord-btn-wrap">
+      <a id="discord-link" href="https://discord.gg/cUxhuh6VTd" target="_blank" class="btn btn-discord">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028 14.09 14.09 0 0 0 1.226-1.994.076.076 0 0 0-.041-.106 13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.956-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.956 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.946 2.418-2.157 2.418z"/></svg>
+        Rejoindre le Discord ZyraHost
+      </a>
+    </div>
+
+    <div class="cta-notice"><span>✓ Gratuit</span> &nbsp;·&nbsp; <span>✓ HTTPS auto</span> &nbsp;·&nbsp; <span>✓ Réponse &lt; 24h</span></div>
   </div>
 </section>
 
@@ -604,7 +663,28 @@ function draw(){
 resize(); init(); draw();
 window.addEventListener('resize',()=>{resize();init()});
 
-// ── SCROLL REVEAL ──
+// ── DISCORD REDIRECT ──
+function updateBtn() {
+  const val = document.getElementById('subdomain-input').value.trim();
+  const btn = document.getElementById('deploy-btn');
+  btn.textContent = val ? `Déployer "${val}" →` : 'Déployer →';
+}
+
+function openDiscord() {
+  const val = document.getElementById('subdomain-input').value.trim();
+  const discordUrl = 'https://discord.gg/cUxhuh6VTd';
+  if (val) {
+    // Copy subdomain to clipboard for easy paste in ticket
+    navigator.clipboard?.writeText(val + '.zyrahost.fr').catch(()=>{});
+    // Show brief toast
+    const toast = document.createElement('div');
+    toast.textContent = `"${val}.zyrahost.fr" copié ! Collez-le dans votre ticket Discord.`;
+    toast.style.cssText = 'position:fixed;bottom:32px;left:50%;transform:translateX(-50%);background:#00e5ff;color:#03060f;font-family:Syne Mono,monospace;font-size:0.75rem;padding:12px 24px;z-index:9999;clip-path:polygon(0 0,calc(100% - 8px) 0,100% 8px,100% 100%,8px 100%,0 calc(100% - 8px));box-shadow:0 0 30px rgba(0,229,255,0.4)';
+    document.body.appendChild(toast);
+    setTimeout(() => toast.remove(), 3500);
+  }
+  window.open(discordUrl, '_blank');
+}
 const observer = new IntersectionObserver(entries=>{
   entries.forEach(e=>{
     if(e.isIntersecting){
